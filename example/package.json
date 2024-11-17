@@ -1,0 +1,24 @@
+{
+  "name": "react-oscilloscope-example",
+  "version": "1.0.0",
+  "description": "Basic react-oscilloscope example",
+  "author": "Kirk Eaton <contact@kirkeaton.ca>",
+  "dependencies": {
+    "react-oscilloscope": "file:.."
+  },
+  "devDependencies": {
+    "eslint": "^9",
+    "eslint-plugin-react-hooks": "^7",
+    "serve": "^14"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "BSD-3-Clause",
+  "private": true,
+  "scripts": {
+    "build": "npm run --prefix ../ build",
+    "start": "npm run build && serve"
+  },
+  "type": "module"
+}
