@@ -218,8 +218,8 @@ const App = () => {
     <Oscilloscope
       ref={oscilloscopeRef}
       audioContext={audioContext}
-      width={1512}
-      height={982}
+      width={1000}
+      height={500}
       onClick={() => play()}
     />
   );

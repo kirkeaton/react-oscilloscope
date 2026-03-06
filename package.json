@@ -43,8 +43,8 @@
     "url": "git+https://github.com/kirkeaton/react-oscilloscope.git"
   },
   "scripts": {
-    "build": "npm run clean && tsc",
-    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc && cp -R dist docs/dist",
+    "clean": "rm -rf dist && rm -rf docs/dist",
     "format": "prettier \"**/*.{html,js,jsx,json,md,ts,tsx}\" --write",
     "lint": "prettier \"**/*.{html,js,jsx,json,md,ts,tsx}\" --check",
     "prepublishOnly": "npm run build",
