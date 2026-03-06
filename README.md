@@ -2,12 +2,6 @@
 
 React hook for creating an oscilloscope
 
-## Install
-
-```bash
-$ npm install react-oscilloscope
-```
-
 ## Hooks
 
 ### useOscilloscope(audioContext, options?)
