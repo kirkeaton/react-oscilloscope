@@ -215,13 +215,27 @@ const App = () => {
   }, [changeNote, changeOctave, changeOffset, changeWave, play, note, octave]);
 
   return (
-    <Oscilloscope
-      ref={oscilloscopeRef}
-      audioContext={audioContext}
-      width={1000}
-      height={500}
-      onClick={() => play()}
-    />
+    <>
+      <Oscilloscope
+        ref={oscilloscopeRef}
+        audioContext={audioContext}
+        width={1000}
+        height={500}
+        onClick={() => play()}
+      />
+      <div>
+        <p>
+          Use keys A, W, S, E, D, F, T, G, Y, H, U, J, K, O, L, P, ; ' to play
+          notes
+        </p>
+        <p>
+          Use 1-5 to change wave type (Sine, Square, Sawtooth, Triangle, Noise)
+        </p>
+        <p>Use Arrow Up/Down to change note offset</p>
+        <p>Use Z/X to change octave</p>
+        <p>Press Space to start/stop</p>
+      </div>
+    </>
   );
 };
 
