@@ -8,46 +8,33 @@
   },
   "devDependencies": {
     "@kirkeaton/prettier-config": "1.0.2",
-    "@kirkeaton/semantic-release-config": "1.0.1",
     "@kirkeaton/tsconfig": "1.0.0",
-    "@types/react": "19.0.2",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "prettier": "3.3.3",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "semantic-release": "24.1.2",
+    "serve": "14.2.6",
     "typescript": "5.6.3"
   },
   "engines": {
     "node": ">=20"
   },
-  "exports": {
-    "types": "./dist/index.d.ts",
-    "default": "./dist/index.js"
-  },
-  "files": [
-    "dist"
-  ],
   "homepage": "https://github.com/kirkeaton/react-oscilloscope#readme",
   "keywords": [
     "oscilloscope",
     "react"
   ],
   "license": "BSD-3-Clause",
-  "peerDependencies": {
-    "react": "^18 || ^19",
-    "react-dom": "^18 || ^19"
-  },
   "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kirkeaton/react-oscilloscope.git"
   },
   "scripts": {
-    "build": "npm run clean && tsc && cp -R dist docs/dist",
-    "clean": "rm -rf dist && rm -rf docs/dist",
-    "format": "prettier \"**/*.{html,js,jsx,json,md,ts,tsx}\" --write",
-    "lint": "prettier \"**/*.{html,js,jsx,json,md,ts,tsx}\" --check",
-    "prepublishOnly": "npm run build",
+    "build": "npm run clean && tsc && cp index.html dist/index.html",
+    "clean": "rm -rf dist",
+    "format": "prettier \"**/*.{html,json,md,ts,tsx}\" --write",
+    "lint": "prettier \"**/*.{html,json,md,ts,tsx}\" --check",
+    "start": "npm run build && serve dist",
     "typecheck": "tsc --noEmit"
   },
   "type": "module"

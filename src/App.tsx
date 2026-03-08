@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCallback } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Oscilloscope } from 'react-oscilloscope';
+import { Oscilloscope, OscilloscopeElement } from './Oscilloscope.js';
 
 const audioContext = new AudioContext();
 
@@ -15,7 +15,13 @@ const notes = Array.from({ length: 88 }, (_, i) => {
   return A4_FREQUENCY * Math.pow(SEMITONE_RATIO, i - 48);
 });
 
-const waves = ['sine', 'square', 'sawtooth', 'triangle', 'noise'];
+const waves: (OscillatorType | 'noise')[] = [
+  'sine',
+  'square',
+  'sawtooth',
+  'triangle',
+  'noise',
+];
 
 // Keyboard mapping: A, W, S, E, D, F, T, G, Y, H, U, J, K, O, L, P, ; '
 // maps to semitone offsets from C (C, C#, D, D#, E, F, F#, G, G#, A, A#, B, ...)
@@ -41,7 +47,11 @@ const KEYS_MAPPING = {
 };
 
 // Helper to create and start either an OscillatorNode or a looping BufferSource for noise
-const createSource = (waveIndex, noteIndex) => {
+const createSource = (waveIndex: number, noteIndex: number) => {
+  if (!waves[waveIndex]) {
+    return null;
+  }
+
   if (waves[waveIndex] === 'noise') {
     const bufferSize = 2 * audioContext.sampleRate;
     const buffer = audioContext.createBuffer(
@@ -58,23 +68,25 @@ const createSource = (waveIndex, noteIndex) => {
     noiseNode.loop = true;
     noiseNode.start();
     return noiseNode;
+  } else if (notes[noteIndex]) {
+    const osc = audioContext.createOscillator();
+    osc.type = waves[waveIndex];
+    osc.frequency.setValueAtTime(notes[noteIndex], audioContext.currentTime);
+    osc.start();
+    return osc;
   }
 
-  const osc = audioContext.createOscillator();
-  osc.type = waves[waveIndex];
-  osc.frequency.setValueAtTime(notes[noteIndex], audioContext.currentTime);
-  osc.start();
-  return osc;
+  return null;
 };
 
 const App = () => {
-  const oscillatorRef = useRef(null);
+  const oscillatorRef = useRef<AudioBufferSourceNode | OscillatorNode>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [octave, setOctave] = useState(3);
   const [offset, setOffset] = useState(0);
   const [note, setNote] = useState(octave * 12); // Start at A4
   const [wave, setWave] = useState(0);
-  const oscilloscopeRef = useRef(null);
+  const oscilloscopeRef = useRef<OscilloscopeElement>(null);
 
   const play = useCallback(() => {
     if (isPlaying) {
@@ -83,6 +95,9 @@ const App = () => {
       return;
     }
     const oscilloscope = oscilloscopeRef.current;
+    if (!oscilloscope) {
+      return;
+    }
 
     oscillatorRef.current = createSource(wave, note);
 
@@ -90,7 +105,7 @@ const App = () => {
       gain: 0.5,
     });
 
-    oscillatorRef.current.connect(gain);
+    oscillatorRef.current?.connect(gain);
     gain.connect(oscilloscope.analyserNode);
 
     oscilloscope.analyserNode.connect(audioContext.destination);
@@ -98,7 +113,7 @@ const App = () => {
   }, [isPlaying, note, wave]);
 
   const changeWave = useCallback(
-    (newWave) => {
+    (newWave: number) => {
       setWave(newWave);
       if (!isPlaying) return;
       // If currently playing, stop and replace the current source
@@ -108,10 +123,14 @@ const App = () => {
       oscillatorRef.current?.disconnect?.();
 
       const osc = oscilloscopeRef.current;
+      if (!osc) {
+        return;
+      }
+
       oscillatorRef.current = createSource(newWave, note);
 
       const gain = new GainNode(audioContext, { gain: 0.5 });
-      oscillatorRef.current.connect(gain);
+      oscillatorRef.current?.connect(gain);
       gain.connect(osc.analyserNode);
       osc.analyserNode.connect(audioContext.destination);
     },
@@ -119,10 +138,12 @@ const App = () => {
   );
 
   const changeNote = useCallback(
-    (increment) => {
+    (increment: number) => {
       const newNote = Math.max(0, Math.min(notes.length - 1, note + increment));
       if (
+        notes[newNote] &&
         oscillatorRef.current &&
+        'frequency' in oscillatorRef.current &&
         oscillatorRef.current.frequency &&
         typeof oscillatorRef.current.frequency.setValueAtTime === 'function'
       ) {
@@ -137,7 +158,7 @@ const App = () => {
   );
 
   const changeOctave = useCallback(
-    (increment) => {
+    (increment: number) => {
       changeNote(increment * 12);
       setOctave(octave + increment);
     },
@@ -145,7 +166,7 @@ const App = () => {
   );
 
   const changeOffset = useCallback(
-    (increment) => {
+    (increment: number) => {
       changeNote(increment);
       setOffset(offset + increment);
     },
@@ -153,7 +174,7 @@ const App = () => {
   );
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
         case 'ArrowUp':
           changeOffset(1);
@@ -240,4 +261,7 @@ const App = () => {
 };
 
 const root = document.getElementById('root');
+if (!root) {
+  throw new Error('Root element not found');
+}
 createRoot(root).render(<App />);
